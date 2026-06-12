@@ -25,7 +25,7 @@ export function interleaveCards<T extends Interleavable>(cards: T[]): T[] {
     const buckets: Record<string, T[]> = {};
     cards.forEach(card => {
         if (!buckets[card.topicId]) buckets[card.topicId] = [];
-        buckets[card.topicId].push(card);
+        buckets[card.topicId]!.push(card);
     });
 
     const topicIds = Object.keys(buckets);
@@ -39,7 +39,7 @@ export function interleaveCards<T extends Interleavable>(cards: T[]): T[] {
     const totalCards = cards.length;
     
     // Sort buckets by size descending to handle the "Big Topic" problem first
-    topicIds.sort((a, b) => buckets[b].length - buckets[a].length);
+    topicIds.sort((a, b) => buckets[b]!.length - buckets[a]!.length);
 
     /**
      * Staggering Strategy:
@@ -71,7 +71,7 @@ export function calculateInterleavingQuality(sequence: Interleavable[]): number 
     
     let switches = 0;
     for (let i = 1; i < sequence.length; i++) {
-        if (sequence[i].topicId !== sequence[i-1].topicId) {
+        if (sequence[i]!.topicId !== sequence[i-1]!.topicId) {
             switches++;
         }
     }

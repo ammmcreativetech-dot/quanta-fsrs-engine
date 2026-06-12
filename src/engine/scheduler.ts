@@ -44,7 +44,7 @@ export function generateGlobalStudyPlan({
 
     const durations = (answerHistory || []).map(h => h.duration).filter(d => typeof d === 'number' && d > 0);
     const medianSecondsPerCard = durations.length > 0 
-        ? [...durations].sort((a, b) => a - b)[Math.floor(durations.length / 2)] 
+        ? [...durations].sort((a, b) => a - b)[Math.floor(durations.length / 2)]! 
         : FALLBACK_SECONDS_PER_CARD;
     
     const userMaxCapacity = globalCapacityMinutes || 180;
@@ -112,7 +112,7 @@ export function generateGlobalStudyPlan({
     for (let i = 0; i <= dynamicHorizon; i++) {
         const currentDate = addDays(today, i);
         const dayId = format(currentDate, 'yyyy-MM-dd');
-        const weekdayName = WEEKDAY_MAP[getDay(currentDate)];
+        const weekdayName = WEEKDAY_MAP[getDay(currentDate)]!;
         const isDetailedDay = i < detailedPlanningHorizonDays;
 
         if (exams.some(ex => isSameDay(currentDate, ex.date))) {
@@ -223,7 +223,7 @@ export function generateGlobalStudyPlan({
             const allCardIdsForDay: { id: string, topicId: string }[] = [];
             Object.values(currentDayDocs).forEach(doc => {
                 doc.taskCardIds.forEach(cid => {
-                    const topicId = doc.taskTopicIds.find(tid => cid.startsWith(tid)) || doc.taskTopicIds[0];
+                    const topicId = doc.taskTopicIds.find(tid => cid.startsWith(tid)) || doc.taskTopicIds[0] || '';
                     allCardIdsForDay.push({ id: cid, topicId });
                 });
             });
@@ -238,7 +238,7 @@ export function generateGlobalStudyPlan({
         Object.entries(currentDayDocs).forEach(([exId, dayDoc]) => {
             dayDoc.allocation = dayDoc.plannedMinutes / (totalDayMins || 1);
             dayDoc.cluster = todayClusterTitles;
-            globalSchedule[exId].push(dayDoc);
+            globalSchedule[exId]!.push(dayDoc);
         });
     }
 
@@ -252,7 +252,7 @@ export function generateGlobalStudyPlan({
             targetRetention: TARGET_RETENTION,
             planVersion: (exam.studyPlan?.planVersion || 0) + 1,
             readinessDetails,
-            topicRisk: Object.fromEntries(exam.topicIds.map(tid => [tid, allTopicRisk[tid]]))
+            topicRisk: Object.fromEntries(exam.topicIds.map(tid => [tid, allTopicRisk[tid]!]))
         };
         examResults[exam.id] = { studyPlan, calendarDays: globalSchedule[exam.id] || [] };
     });
@@ -267,7 +267,7 @@ export function deriveSessionBlocks(day: CalendarDayDoc, exam: ExamDetails): Ses
 
     if (totalMinutes <= 0) return [];
 
-    const mastery = exam.studyPlan?.topicRisk[exam.topicIds[0]]?.mastery || 0;
+    const mastery = exam.studyPlan?.topicRisk[exam.topicIds[0]!]?.mastery || 0;
     const cardMins = totalMinutes - (day.simulationTasks?.reduce((s, sim) => s + sim.estimatedMinutes, 0) || 0);
     const effectiveCardMins = Math.max(0, cardMins);
     
@@ -344,7 +344,7 @@ export function deriveSessionBlocks(day: CalendarDayDoc, exam: ExamDetails): Ses
 
     const finalTotalMins = blocks.reduce((s, b) => s + b.estimatedMinutes, 0);
     if (finalTotalMins < totalMinutes && blocks.length > 0) {
-        blocks[blocks.length - 1].estimatedMinutes += (totalMinutes - finalTotalMins);
+        blocks[blocks.length - 1]!.estimatedMinutes += (totalMinutes - finalTotalMins);
     }
 
     return blocks;

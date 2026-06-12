@@ -64,36 +64,38 @@ export function updateFSRS(current: FSRSState, grade: FSRSGrade | 'known' | 'uns
   }
 
   const W = DEFAULT_WEIGHTS;
+  // Safe indexed access — weights are a fixed-length constant array
+  const w = (i: number) => W[i]!;
   let s = current.stability;
   let d = current.difficulty;
   const now = simulationNow || new Date();
 
   // 1. Initial State for new cards
   if (!current.lastReview || s === 0) {
-    s = W[g - 1];
-    d = W[4] - W[5] * (g - 3);
+    s = w(g - 1);
+    d = w(4) - w(5) * (g - 3);
   } else {
     // 2. Existing card updates
     const t = Math.max(0, (now.getTime() - new Date(current.lastReview).getTime()) / (1000 * 60 * 60 * 24));
     const r = calculateRetrievability(s, current.lastReview, now);
 
     // Update Difficulty (incorporating mean reversion)
-    const d0 = W[4];
-    let next_d = d - W[6] * (g - 3);
-    d = W[7] * d0 + (1 - W[7]) * next_d;
+    const d0 = w(4);
+    let next_d = d - w(6) * (g - 3);
+    d = w(7) * d0 + (1 - w(7)) * next_d;
     d = Math.max(1, Math.min(10, d));
 
     // Update Stability
     if (g > 1) {
       // Success (FSRS v4 Standard)
-      const hard_penalty = g === 2 ? W[15] : 1;
-      const easy_bonus = g === 4 ? W[16] : 1;
+      const hard_penalty = g === 2 ? w(15) : 1;
+      const easy_bonus = g === 4 ? w(16) : 1;
       
-      const s_inc = Math.exp(W[8]) * (11 - d) * Math.pow(s, -W[9]) * (Math.exp(W[10] * (1 - r)) - 1);
+      const s_inc = Math.exp(w(8)) * (11 - d) * Math.pow(s, -w(9)) * (Math.exp(w(10) * (1 - r)) - 1);
       s = s * (1 + s_inc * hard_penalty * easy_bonus);
     } else {
       // Failure (FSRS v4 Standard)
-      s = W[11] * Math.pow(d, -W[12]) * (Math.pow(s + 1, W[13]) - 1) * Math.exp(W[14] * (1 - r));
+      s = w(11) * Math.pow(d, -w(12)) * (Math.pow(s + 1, w(13)) - 1) * Math.exp(w(14) * (1 - r));
     }
   }
 
