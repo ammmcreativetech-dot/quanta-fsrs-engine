@@ -1,10 +1,10 @@
 # Quanta FSRS Engine
 
-> **Open-source FSRS-6 Spaced Repetition Engine** — the algorithm powering [Quanta](https://quanta-study.de), the AI-powered STEM learning platform for students in the DACH region.
+> **Open-source FSRS Spaced Repetition Engine** — the algorithm powering [Quanta](https://quanta-study.de), the AI-powered STEM learning platform for students in the DACH region.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://typescriptlang.org)
-[![FSRS](https://img.shields.io/badge/Algorithm-FSRS--6-green.svg)](https://dl.acm.org/doi/10.1145/3534678.3539081)
+[![FSRS](https://img.shields.io/badge/Algorithm-FSRS-green.svg)](https://dl.acm.org/doi/10.1145/3534678.3539081)
 
 ---
 
@@ -12,7 +12,7 @@
 
 This is the **complete spaced repetition engine** extracted from [Quanta](https://quanta-study.de). It implements the Free Spaced Repetition Scheduler (FSRS) by Ye et al. (2022, ACM KDD), with Quanta-specific extensions for STEM learning:
 
-- **FSRS-6 Core** — Stability (S), Difficulty (D), Retrievability (R) tracking per card
+- **FSRS Core** — Stability (S), Difficulty (D), Retrievability (R) tracking per card
 - **STEM-Optimized Weights** — Calibrated for academic MINT/STEM content (formulas, proofs, reaction mechanisms)
 - **Exam-Aware Scheduler** — Multi-exam study plan generation with risk-based prioritization
 - **Interleaving Engine** — Topic-interleaved card ordering (Rohrer & Taylor, 2007)
@@ -23,7 +23,7 @@ This is the **complete spaced repetition engine** extracted from [Quanta](https:
 
 | Paper | Key Finding | How Quanta Uses It |
 |---|---|---|
-| [Ye et al. 2022, ACM KDD](https://dl.acm.org/doi/10.1145/3534678.3539081) | FSRS is 22× more precise than SM-2 (Log-Loss 0.35 vs 0.45) | Core scheduling algorithm |
+| [Ye et al. 2022, ACM KDD](https://dl.acm.org/doi/10.1145/3534678.3539081) | FSRS is 22% more precise than SM-2 (Log-Loss 0.35 vs 0.45) | Core scheduling algorithm |
 | [Karpicke & Roediger 2008, Science](https://doi.org/10.1126/science.1152408) | Active Recall improves long-term retention by 50% vs re-reading | Q&A flashcard format |
 | [Rohrer & Taylor 2007](https://doi.org/10.1007/s11251-007-9015-8) | Interleaving yields 63% vs 20% on delayed tests | `interleaving.ts` implementation |
 | [Ebbinghaus 1885](https://en.wikipedia.org/wiki/Forgetting_curve) | Exponential forgetting curve: R(t) = 0.9^(t/S) | `calculateRetrievability()` |
@@ -32,7 +32,7 @@ This is the **complete spaced repetition engine** extracted from [Quanta](https:
 
 ```
 src/
-├── fsrs.ts              # FSRS-6 core: state updates, retrievability, grades
+├── fsrs.ts              # FSRS core: state updates, retrievability, grades
 ├── interleaving.ts      # Topic-interleaved card ordering (Rohrer 2007)
 └── engine/
     ├── types.ts         # TypeScript interfaces for all engine types
@@ -80,7 +80,7 @@ D' = w7 × D0 + (1 - w7) × (D - w6 × (grade - 3))
 ## Used In Production
 
 This engine powers [Quanta](https://quanta-study.de) — a STEM learning platform with:
-- FSRS-6 Spaced Repetition for Physics, Chemistry, Math, Biology, Medicine
+- FSRS Spaced Repetition for Physics, Chemistry, Math, Biology, Medicine
 - AI-powered flashcard generation (Gemini 2.5 Flash)
 - LaTeX formula editor (KaTeX) and SMILES molecule builder
 - Community deck library with education context filters (university, semester, federal state)
