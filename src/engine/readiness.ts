@@ -1,30 +1,7 @@
 /**
- * HARVARD READINESS ENGINE v2.0
- * 
- * Scientific foundations:
- * - FSRS v4.5/v5 (Duolingo 2022, open-weights SR scheduler)
- * - Testing Effect (Roediger & Karpicke, 2006): retrieval practice > passive review
- * - Exponential Forgetting Curve (Ebbinghaus 1885; replicated by Murre & Dros 2015)
- * - Cognitive Load Theory (Sweller, 1988): difficulty modulates encoding quality
- * - Spacing Effect (Cepeda et al., 2006): distributed practice improves long-term retention
- *
- * Score Architecture (4 orthogonal dimensions):
- * ┌──────────────────────────────────────────────────────────────────────────────┐
- * │  Dimension        │ Weight │ What it measures                                │
- * ├──────────────────────────────────────────────────────────────────────────────┤
- * │  Topic Mastery    │  35%   │ Depth: how well learned cards are mastered      │
- * │  Retention        │  30%   │ Durability: expected recall ON the exam day     │
- * │  Simulation       │  20%   │ Transfer: performance under exam conditions     │
- * │  Coverage         │  15%   │ Breadth: fraction of all syllabus content seen  │
- * └──────────────────────────────────────────────────────────────────────────────┘
- *
- * Critical design decisions:
- * 1. Retention is projected to EXAM DAY (not today) — cards decay in the interim.
- * 2. Unseen cards contribute 0.0 to retention — they cannot be recalled on exam day.
- * 3. Simulation is recency-decayed (exponential, λ=0.08) — old sims are stale.
- * 4. Simulation is coverage-penalized with sqrt(coverage) — reduces harsh punishment.
- * 5. Mastery uses FSRS difficulty to weight per-card contributions.
- * 6. Coverage measures "effectively covered" (≥2 reviews AND status!='new').
+ * Heuristic readiness and confidence indicators for study planning.
+ * Combines mastery, recall estimates, simulations and coverage using configured
+ * weights. These values are not exam predictions or statistical intervals.
  */
 
 import { differenceInDays, addDays, isSameDay, parseISO } from 'date-fns';
@@ -44,15 +21,15 @@ export function calculateRecallProbability(card: any, now: Date): number {
 /**
  * Calculates the expected probability of recall for a card ON THE EXAM DAY.
  * 
- * For unseen cards: 0.0 — they have never been encoded, so they cannot be recalled.
- * For seen cards: R(stability, lastReview, examDate) from FSRS power law.
+ * Unseen records receive a zero contribution in this model.
+ * Seen records use this repository's exponential recall function.
  * 
  * This captures the crucial insight: a card reviewed today may be forgotten
  * in 3 weeks if its stability is low. This is what the exam will test.
  */
 function expectedRetentionAtExam(card: any, examDate: Date): number {
     if (!card || card.status === 'new' || !card.stability || !card.lastReview) {
-        return 0.0; // Never encoded → 0% recall on exam day
+        return 0.0; // Zero model contribution for an unseen record
     }
     return Math.max(0, calculateRetrievability(card.stability, card.lastReview, examDate));
 }
@@ -66,9 +43,7 @@ function expectedRetentionAtExam(card: any, examDate: Date): number {
  * A simulation session 8–9 days ago has ~50% weight of a session from today.
  * A session from 4 weeks ago contributes negligibly.
  * 
- * Scientific basis: forgetting curve applies to meta-cognitive performance
- * as well as to individual facts. A strong simulation 3 weeks ago does not
- * reliably predict today's readiness.
+ * This is the configured decay heuristic, not a validated prediction.
  */
 function recencyWeightedSimScore(sims: any[], today: Date): number {
     if (sims.length === 0) return 0;

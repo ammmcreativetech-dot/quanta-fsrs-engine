@@ -1,11 +1,7 @@
 /**
- * QUANTA FSRS ENGINE v5.0 (2026 Standard)
- * Implements the Free Spaced Repetition Scheduler (v4.5/5) 
- * 
- * This engine tracks:
- * - Stability (S): Days until the probability of recall (R) drops to 90%.
- * - Difficulty (D): How hard a piece of information is (1-10).
- * - Retrievability (R): Probability of successful recall at time (t).
+ * Historical standalone FSRS-inspired review model.
+ * Tracks stability, difficulty and an exponential recall estimate using the
+ * configured parameters below; no population calibration is established here.
  */
 
 export interface FSRSState {
@@ -17,8 +13,7 @@ export interface FSRSState {
 
 export type FSRSGrade = 1 | 2 | 3 | 4; // Again, Hard, Good, Easy
 
-// Optimized Weights for High-Performance Academic STEM Learning
-// Calibrated for Quanta's "Elite" student profile.
+// Historical default values; no accompanying population calibration record.
 export const DEFAULT_WEIGHTS = [
   0.4025, 1.4614, 3.3254, 11.9135, // Initial Stability S0 (Again, Hard, Good, Easy)
   4.9252, 0.9451, 0.8653, 0.0105,  // Difficulty parameters (D0, w5, w6, w7)
@@ -87,14 +82,14 @@ export function updateFSRS(current: FSRSState, grade: FSRSGrade | 'known' | 'uns
 
     // Update Stability
     if (g > 1) {
-      // Success (FSRS v4 Standard)
+      // Successful-review update
       const hard_penalty = g === 2 ? w(15) : 1;
       const easy_bonus = g === 4 ? w(16) : 1;
       
       const s_inc = Math.exp(w(8)) * (11 - d) * Math.pow(s, -w(9)) * (Math.exp(w(10) * (1 - r)) - 1);
       s = s * (1 + s_inc * hard_penalty * easy_bonus);
     } else {
-      // Failure (FSRS v4 Standard)
+      // Failed-review update
       s = w(11) * Math.pow(d, -w(12)) * (Math.pow(s + 1, w(13)) - 1) * Math.exp(w(14) * (1 - r));
     }
   }

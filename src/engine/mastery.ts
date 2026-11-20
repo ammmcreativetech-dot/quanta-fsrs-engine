@@ -1,16 +1,7 @@
 import { isAfter, parseISO, subDays } from 'date-fns';
 import { TopicRiskInfo } from './types';
 
-/**
- * FSRS-Difficulty-adjusted status weights.
- * 
- * Scientific basis:
- * - 'known'    = 1.0 : successful retrieval (testing effect, Roediger & Karpicke 2006)
- * - 'unsure'   = 0.35: partial retrieval — matches empirical forgetting curve intercept
- *                       at short intervals (~35%, Ebbinghaus 1885/replication)
- * - 'learning' = 0.15: acquired but unstable; below threshold for durable encoding
- * - 'new'      = 0.0 : never processed
- */
+/** Configured status weights for this implementation's mastery heuristic. */
 const STATUS_WEIGHT: Record<string, number> = {
     known:    1.00,
     unsure:   0.35,
@@ -27,8 +18,7 @@ const STATUS_WEIGHT: Record<string, number> = {
  *   D=5  → 0.84
  *   D=10 → 0.64
  * 
- * Rationale: A "known" status on a D=10 card is less reliable than
- * "known" on D=1, because difficulty directly predicts forgetting rate.
+ * The penalty is a configured heuristic, not a measured accuracy estimate.
  */
 function difficultyFactor(difficulty: number | undefined): number {
     const d = Math.max(1, Math.min(10, difficulty ?? 5));

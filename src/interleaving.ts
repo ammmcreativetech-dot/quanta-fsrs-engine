@@ -1,12 +1,6 @@
 /**
- * QUANTA INTERLEAVING ENGINE v1.0
- * Implements the "Mischeffekt" (Interleaving Effect)
- * 
- * Scientific Basis:
- * Interleaving different topics forces the brain to perform "Discriminative Contrast".
- * Instead of relying on a single mental model for a block (e.g., "all cards are math"),
- * the learner must retrieve the correct context for each card, leading to 60%+ 
- * better long-term retention compared to blocked learning.
+ * Topic interleaving helpers: round-robin ordering and adjacent-switch ratio.
+ * The ordering heuristic is not a measured retention outcome.
  */
 
 export interface Interleavable {
@@ -15,8 +9,7 @@ export interface Interleavable {
 }
 
 /**
- * Reorders a flat list of cards to maximize topic diversity.
- * Uses a Weighted Round-Robin Topic Staggering algorithm.
+ * Reorders a flat list of cards by taking one card from each topic per round.
  */
 export function interleaveCards<T extends Interleavable>(cards: T[]): T[] {
     if (cards.length <= 1) return cards;
@@ -63,8 +56,8 @@ export function interleaveCards<T extends Interleavable>(cards: T[]): T[] {
 
 /**
  * Calculates the "Interleaving Quality" of a sequence.
- * 1.0 = Perfect alternation.
- * 0.0 = Purely blocked (Topic A, then B, then C).
+ * 1.0 = Every adjacent pair has different topics.
+ * 0.0 = No adjacent topic changes.
  */
 export function calculateInterleavingQuality(sequence: Interleavable[]): number {
     if (sequence.length <= 1) return 1.0;

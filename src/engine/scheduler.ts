@@ -8,6 +8,7 @@ import { ExamDetails, StudyPlanMetadata, TopicRiskInfo, CalendarDayDoc, SessionB
 const TARGET_RETENTION = 0.9;
 const FALLBACK_SECONDS_PER_CARD = 60; 
 const MAX_PLANNING_CAP = 600; 
+// Historical public name: configured cap, not an individually validated workload limit.
 export const SCIENTIFIC_MAX_DAILY_LOAD = 300; 
 
 const WEEKDAY_MAP: Record<number, string> = {
